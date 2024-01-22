@@ -50,7 +50,7 @@ struct machine* create_machine(){
     struct passwd* passwd = getpwuid(getuid());
 
     const char* filepath = "lab2_sample.c";
-    char result[10];
+    char *result;
 
     struct group* group = getgrgid(getgid());
 
