@@ -49,8 +49,8 @@ struct machine{
 struct machine* create_machine(){
     struct passwd* passwd = getpwuid(getuid());
 
-    const char* filepath = "lab2_sample.c";
-    char *result;
+    const char* filepath = "/home/ingramrt";
+    char result[10];
 
     struct group* group = getgrgid(getgid());
 
