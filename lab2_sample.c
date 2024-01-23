@@ -33,17 +33,17 @@ void permission_to_string(mode_t permission, char* result) {
 }
 
 struct machine{
-    char* user;
+    char user[50];
     int user_id;
-    char* group;
+    char group[50];
     int group_id;
-    char* home;
-    char* home_permission;
+    char home[50];
+    char home_permission[50];
     int home_permission_num;
-    char* login_shell;
-    char* host;
-    char* system_name;
-    char* system_version;
+    char login_shell[50];
+    char host[50];
+    char system_name[50];
+    char system_release[50];
 };
 
 struct machine* create_machine(){
@@ -60,26 +60,28 @@ struct machine* create_machine(){
 
     struct machine* machine = malloc(sizeof(struct machine));
 
-    machine->user = passwd->pw_name;
+    strcpy(machine->user, passwd->pw_name);
     machine->user_id = passwd->pw_uid;
 
-    machine->group = group->gr_name;
+    //machine->group = group->gr_name;
+    strcpy(machine->group, group->gr_name);
     machine->group_id = group->gr_gid;
 
-    machine->home = passwd->pw_dir;
+    //machine->home = passwd->pw_dir;
+    strcpy(machine->home, passwd->pw_dir);
 
     stat(filepath, &st);
     permission_to_string(st.st_mode, result);
-    machine->home_permission = strdup(result);
+    strcpy(machine->home_permission, result);
     machine->home_permission_num = st.st_mode;
 
-    machine->login_shell = passwd->pw_shell;
+    strcpy(machine->login_shell, passwd->pw_shell);
 
     int host = uname(&utsname_data);
-    machine->host = strdup(utsname_data.nodename);
+    strcpy(machine->host, utsname_data.nodename);
 
-    machine->system_name = strdup(utsname_data.sysname);
-    machine->system_version = strdup(utsname_data.release);
+    strcpy(machine->system_name, utsname_data.sysname);
+    strcpy(machine->system_release, utsname_data.release);
 
     return machine;
 }
@@ -94,7 +96,7 @@ void print_machine(struct machine* machine){
     printf("Login Shell          :  %s\n\n", machine->login_shell);
     printf("About this machine\n==================\n");
     printf("Host                 :  %s\n", machine->host);
-    printf("System               :  %s %s\n", machine->system_name, machine->system_version);
+    printf("System               :  %s %s\n", machine->system_name, machine->system_release);
 }
 
 int main()
@@ -104,10 +106,10 @@ int main()
     //char *me;
     //me = getenv("USER");
     //printf ("My login id is %s\n", me);
-    free(machine->home_permission);
-    free(machine->host);
-    free(machine->system_name);
-    free(machine->system_version);
+    //free(machine->home_permission);
+    //free(machine->host);
+    //free(machine->system_name);
+    //free(machine->system_version);
     free(machine);
     return 0;
 }
