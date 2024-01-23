@@ -32,6 +32,12 @@ void permission_to_string(mode_t permission, char* result) {
             (permission & S_IXOTH) ? 'x' : '-');
 }
 
+/*********************************************
+ * This struct initializes variables that the 
+ * struct machine will print. All the strings
+ * are initialized to a fixed array size of 50
+ * to make sure they have space. 
+*********************************************/
 struct machine{
     char user[50];
     int user_id;
@@ -46,30 +52,46 @@ struct machine{
     char system_release[50];
 };
 
+/*******************************************
+ * This helper method "creates the machine"
+ * This method is where each of the struct's
+ * variables with a value to print. 
+*******************************************/
 struct machine* create_machine(){
+
+    //this struct is to obtain the user's 
+    //name, directory, id, and shell the 
+    //user is using
     struct passwd* passwd = getpwuid(getuid());
 
+    //filepath and result are used when obtaining
+    //the home permissions
     const char* filepath = "/home/ingramrt";
     char result[10];
 
+    //group struct gets the group id and group name
     struct group* group = getgrgid(getgid());
 
+    //stat struct gets the permissions of the user
     struct stat st;
 
+    //utsname struct gets the hostname, system_name, and the system_release
     struct utsname utsname_data;
 
+    //allocating space for the machine 
     struct machine* machine = malloc(sizeof(struct machine));
 
+    //copy username into machine user and user id into machine user id
     strcpy(machine->user, passwd->pw_name);
     machine->user_id = passwd->pw_uid;
-
-    //machine->group = group->gr_name;
+    
     strcpy(machine->group, group->gr_name);
     machine->group_id = group->gr_gid;
 
-    //machine->home = passwd->pw_dir;
     strcpy(machine->home, passwd->pw_dir);
 
+    //must call stat to retrieve the file permissions using st.st_mode
+    //calls permission_to_string to get the human readable permissions
     stat(filepath, &st);
     permission_to_string(st.st_mode, result);
     strcpy(machine->home_permission, result);
@@ -77,7 +99,8 @@ struct machine* create_machine(){
 
     strcpy(machine->login_shell, passwd->pw_shell);
 
-    int host = uname(&utsname_data);
+    //uname allows the programmer to obtain the host and the system name
+    uname(&utsname_data);
     strcpy(machine->host, utsname_data.nodename);
 
     strcpy(machine->system_name, utsname_data.sysname);
@@ -86,6 +109,7 @@ struct machine* create_machine(){
     return machine;
 }
 
+//helper method that prints the different components of machine
 void print_machine(struct machine* machine){
     printf("About me\n========\n");
     printf("Unix User            :  %s (%d)\n", machine->user, machine->user_id);
@@ -99,17 +123,11 @@ void print_machine(struct machine* machine){
     printf("System               :  %s %s\n", machine->system_name, machine->system_release);
 }
 
+//main that creates a mahcine then prints its components to the screen
 int main()
 {
     struct machine* machine = create_machine();
     print_machine(machine);
-    //char *me;
-    //me = getenv("USER");
-    //printf ("My login id is %s\n", me);
-    //free(machine->home_permission);
-    //free(machine->host);
-    //free(machine->system_name);
-    //free(machine->system_version);
     free(machine);
     return 0;
 }
