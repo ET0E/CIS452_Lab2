@@ -16,7 +16,7 @@
  * stat(2) manual page. 
 *********************************************************/
 void permission_to_string(mode_t permission, char* result) {
-    //use sprintf to print to
+    //use sprintf to print to put into result the formatted string
     sprintf(result, "%c%c%c%c%c%c%c%c%c",
             //can user read, write, execute
             (permission & S_IRUSR) ? 'r' : '-',
