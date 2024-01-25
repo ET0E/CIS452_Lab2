@@ -6,19 +6,21 @@
 #include <string.h>
 #include <grp.h>
 #include <sys/stat.h>
+#include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
 
 /*********************************************************
- * Code from ChatGPT, takes a permission as input and
+ * ChatGPT helped me write this code, takes a permission as input and
  * translates to the human readable read, write, execute 
  * permissions. The S_IRUSER etc. can be found on the 
  * stat(2) manual page. 
 *********************************************************/
 void permission_to_string(mode_t permission, char* result) {
     //use sprintf to print to put into result the formatted string
-    sprintf(result, "%c%c%c%c%c%c%c%c%c",
+    sprintf(result, "%c%c%c%c%c%c%c%c%c%c",
             //can user read, write, execute
+            (permission & __S_IFDIR) ? 'd' : '-',
             (permission & S_IRUSR) ? 'r' : '-',
             (permission & S_IWUSR) ? 'w' : '-',
             (permission & S_IXUSR) ? 'x' : '-',
@@ -40,6 +42,7 @@ void permission_to_string(mode_t permission, char* result) {
 *********************************************/
 struct machine{
     char user[50];
+    char username[50];
     int user_id;
     char group[50];
     int group_id;
@@ -84,6 +87,8 @@ struct machine* create_machine(){
     //copy username into machine user and user id into machine user id
     strcpy(machine->user, passwd->pw_name);
     machine->user_id = passwd->pw_uid;
+
+    strcpy(machine->username, passwd->pw_gecos);
     
     strcpy(machine->group, group->gr_name);
     machine->group_id = group->gr_gid;
@@ -113,7 +118,7 @@ struct machine* create_machine(){
 void print_machine(struct machine* machine){
     printf("About me\n========\n");
     printf("Unix User            :  %s (%d)\n", machine->user, machine->user_id);
-    printf("Name                 :  Tristan Ingram-Reeve\n");
+    printf("Name                 :  %s\n", machine->username);
     printf("Unix Group           :  %s (%d)\n", machine->group, machine->group_id);
     printf("Unix Home            :  %s\n", machine->home);
     printf("Home Permissions     :  %s (%d)\n", machine->home_permission, machine->home_permission_num);
